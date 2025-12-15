@@ -1,4 +1,5 @@
 pub mod concat;
+pub mod star;
 pub mod union;
 
 pub trait NFA {
