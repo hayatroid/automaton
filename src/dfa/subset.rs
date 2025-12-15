@@ -9,18 +9,12 @@ impl<N: NFA<Q: Clone + Ord>> DFA for Subset<N> {
     type A = N::A;
 
     fn q_init(&self) -> Self::Q {
-        let mut res = BTreeSet::new();
-        res.insert(self.0.q_init());
+        let res = BTreeSet::from([self.0.q_init()]);
         self.eps_closure(res)
     }
 
     fn q_next(&self, q: &Self::Q, a: &Self::A) -> Self::Q {
-        let mut res = BTreeSet::new();
-        for q in q {
-            for nq in self.0.q_next(q, Some(a)) {
-                res.insert(nq);
-            }
-        }
+        let res = q.iter().flat_map(|q| self.0.q_next(q, Some(a))).collect();
         self.eps_closure(res)
     }
 
@@ -30,12 +24,8 @@ impl<N: NFA<Q: Clone + Ord>> DFA for Subset<N> {
 }
 
 impl<N: NFA<Q: Clone + Ord>> Subset<N> {
-    fn eps_closure(&self, q: BTreeSet<N::Q>) -> BTreeSet<N::Q> {
-        let mut res = BTreeSet::new();
-        let mut dfs = vec![];
-        for q in q {
-            res.insert(q.clone()).then(|| dfs.push(q));
-        }
+    fn eps_closure(&self, mut res: BTreeSet<N::Q>) -> BTreeSet<N::Q> {
+        let mut dfs: Vec<N::Q> = res.iter().cloned().collect();
         while let Some(q) = dfs.pop() {
             for nq in self.0.q_next(&q, None) {
                 res.insert(nq.clone()).then(|| dfs.push(nq));
