@@ -1,3 +1,5 @@
+pub mod concat;
+
 pub trait NFA {
     type Q;
     type A;
