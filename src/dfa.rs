@@ -1,3 +1,5 @@
+pub mod subset;
+
 pub trait DFA {
     type Q;
     type A;
